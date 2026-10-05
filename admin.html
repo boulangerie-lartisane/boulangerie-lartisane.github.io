@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FBF3E4">
+<title>L'Artisane – Espace gérant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,900&family=Nunito:wght@400;600;800&display=swap">
+<style>
+:root{--cream:#FBF3E4;--cream2:#F3E5CC;--card:#FFFAF0;--ink:#1A1410;--dark:#1C1714;--gold:#C2913A;--gold-text:#8A5A10;--line:#E2CBA0;--muted:#5A4A3A;--red:#A3190F;--green:#1F6B33}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--cream);color:var(--ink);font-family:'Nunito','Trebuchet MS',sans-serif;font-size:17px;line-height:1.5;-webkit-text-size-adjust:100%}
+button,input,textarea{font-family:inherit;font-size:17px}
+button{cursor:pointer}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #1C63D5;outline-offset:2px}
+.serif{font-family:'Playfair Display',Georgia,serif}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px}
+.top{position:sticky;top:0;z-index:10;background:var(--dark);color:#fff}
+.top .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 14px;min-height:62px;padding-top:8px;padding-bottom:8px}
+.top .name{font-family:'Playfair Display',Georgia,serif;font-style:italic;font-weight:900;font-size:24px;line-height:1}
+.top .name small{font-family:'Nunito',sans-serif;font-style:normal;font-weight:800;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#E6BE6A;margin-left:8px}
+.top .acts{display:flex;gap:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:24px;font-weight:800;text-decoration:none;border:2px solid transparent}
+.btn-gold{background:var(--gold);color:#1A1410;border-color:var(--gold)}
+.btn-dark{background:var(--dark);color:#fff;border-color:var(--dark)}
+.btn-line{background:#fff;color:var(--ink);border-color:var(--ink)}
+.btn-ghost{background:transparent;color:#fff;border-color:#8C7A55}
+.btn[disabled]{opacity:.5;cursor:default}
+main{padding:20px 0 130px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:18px}
+.card h2{margin:0 0 4px;font-family:'Playfair Display',Georgia,serif;font-weight:700;font-size:26px;line-height:1.15}
+.card h3{margin:22px 0 2px;padding-top:16px;border-top:1px solid var(--line);font-size:14px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-text);font-weight:800}
+.hint{margin:0 0 6px;color:var(--muted);font-size:15px}
+.fld{display:flex;flex-direction:column;gap:6px;margin-top:14px;font-weight:800;font-size:15px}
+.fld input,.fld textarea{width:100%;min-height:50px;border-radius:12px;border:2px solid var(--ink);padding:10px 12px;background:#fff;color:var(--ink);font-weight:400}
+.fld textarea{resize:vertical;line-height:1.4}
+.fld.changed input,.fld.changed textarea{border-color:var(--gold);background:#FFF6DC}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.photo{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:14px}
+.photo .pv{width:150px;height:112px;border-radius:14px;border:2px solid var(--line);background:var(--cream2);object-fit:cover;display:flex;align-items:center;justify-content:center;text-align:center;font-size:14px;color:var(--muted);flex:none;overflow:hidden}
+.photo img.pv{display:block}
+.photo .side{flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.pick{position:relative;overflow:hidden}
+.pick input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.msg{font-weight:800;font-size:15px}
+.msg.ok{color:var(--green)}.msg.err{color:var(--red)}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--card);border-top:2px solid var(--gold);padding:12px 0 calc(12px + env(safe-area-inset-bottom,0px))}
+.bar .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px}
+.bar .btn{flex:1 1 240px;min-height:56px;font-size:18px}
+.login{max-width:400px;margin:0 auto;padding:56px 20px;display:flex;flex-direction:column;gap:14px;text-align:center}
+.login .name{font-family:'Playfair Display',Georgia,serif;font-style:italic;font-weight:900;font-size:52px;line-height:1}
+.login input{min-height:58px;border-radius:14px;border:2px solid var(--ink);padding:0 14px;background:#fff;color:var(--ink);text-align:center}
+.login input.code{font-size:30px;font-weight:800;letter-spacing:10px}
+.err-box{background:#FBE3DE;border:2px solid var(--red);color:#5E0D05;border-radius:12px;padding:10px 12px;font-weight:800;font-size:15px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function () {
+  var SB = 'https://ibmesnqujuwhankxgagu.supabase.co';
+  var KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlibWVzbnF1anV3aGFua3hnYWd1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyMDMwNjcsImV4cCI6MjEwNjc3OTA2N30.ucsJIcQ4eaaq2vOYT4zNw25LhcGhYJRLHYZGkX_7I1g';
+  var HEAD = { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json' };
+  var SESSION = 'lartisane_session', EMAILKEY = 'lartisane_email';
+  var app = document.getElementById('app');
+  var S = { secret: '', saved: {}, loginErr: '', busy: false };
+
+  var SECTIONS = [
+    { title: 'Accueil', hint: 'Le haut de la page, avec le nom de la boulangerie.', fields: [
+      { k: 'surtitre', l: 'Petit titre au-dessus du nom' },
+      { k: 'nom', l: 'Nom de la boulangerie' },
+      { k: 'slogan', l: 'Slogan' },
+      { k: 'badge', l: 'Étiquette sur la photo', rows: 2 },
+      { img: 'accueil', l: 'Photo d’accueil' } ] },
+    { title: 'Nos spécialités', hint: 'Le titre de la partie, puis les trois cartes.', fields: [
+      { k: 'spe_surtitre', l: 'Petit titre' },
+      { k: 'spe_titre', l: 'Titre' },
+      { k: 'spe_texte', l: 'Texte d’introduction', rows: 3 },
+      { sub: 'Carte 1' }, { k: 'pains_titre', l: 'Titre' }, { k: 'pains_texte', l: 'Texte', rows: 2 }, { img: 'pains', l: 'Photo' },
+      { sub: 'Carte 2' }, { k: 'vienn_titre', l: 'Titre' }, { k: 'vienn_texte', l: 'Texte', rows: 2 }, { img: 'viennoiseries', l: 'Photo' },
+      { sub: 'Carte 3' }, { k: 'patis_titre', l: 'Titre' }, { k: 'patis_texte', l: 'Texte', rows: 2 }, { img: 'patisseries', l: 'Photo' } ] },
+    { title: 'Infos pratiques', hint: 'Adresse, téléphone et horaires. Le bouton d’appel et l’itinéraire suivent ces informations.', fields: [
+      { k: 'infos_surtitre', l: 'Petit titre' },
+      { k: 'infos_titre', l: 'Titre' },
+      { k: 'adresse', l: 'Adresse (une ligne par ligne)', rows: 3 },
+      { k: 'telephone', l: 'Téléphone', type: 'tel' },
+      { sub: 'Horaires' },
+      { pair: ['h1_jour', 'h1_heure'], l: ['Jours (ligne 1)', 'Heures'] },
+      { pair: ['h2_jour', 'h2_heure'], l: ['Jours (ligne 2)', 'Heures'] },
+      { pair: ['h3_jour', 'h3_heure'], l: ['Jours (ligne 3, facultatif)', 'Heures'] } ] }
+  ];
+
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (a) {
+      if (a === 'text') e.textContent = attrs[a]; else if (a === 'class') e.className = attrs[a]; else e.setAttribute(a, attrs[a]);
+    });
+    (kids || []).forEach(function (k) { if (k) e.appendChild(k); });
+    return e;
+  }
+  function rpc(fn, args) {
+    return fetch(SB + '/rest/v1/rpc/' + fn, { method: 'POST', headers: HEAD, body: JSON.stringify(args || {}) }).then(function (r) {
+      return r.text().then(function (t) {
+        var j = null; try { j = t ? JSON.parse(t) : null; } catch (e) {}
+        if (!r.ok) throw new Error((j && j.message) || 'ERREUR');
+        return j;
+      });
+    });
+  }
+  function secretOf(mail, code) { return mail.trim().toLowerCase() + '|' + code; }
+  function denied(code) {
+    try { sessionStorage.removeItem(SESSION); } catch (e) {}
+    S.secret = '';
+    S.loginErr = code === 'BLOQUE' ? 'Trop d’essais incorrects. Réessayez dans 5 minutes.' : 'Vos identifiants ont changé. Reconnectez-vous.';
+    renderLogin();
+  }
+
+  /* ---------- connexion ---------- */
+  function renderLogin() {
+    var mail = ''; try { mail = localStorage.getItem(EMAILKEY) || ''; } catch (e) {}
+    app.textContent = '';
+    var m = el('input', { id: 'mail', type: 'email', autocomplete: 'username', placeholder: 'Votre e-mail', 'aria-label': 'E-mail', value: mail });
+    var c = el('input', { id: 'code', class: 'code', type: 'password', inputmode: 'numeric', maxlength: '4', autocomplete: 'off', placeholder: '····', 'aria-label': 'Code à 4 chiffres' });
+    var b = el('button', { class: 'btn btn-dark', text: 'Entrer' });
+    b.style.minHeight = '58px';
+    b.addEventListener('click', login);
+    c.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); login(); } });
+    m.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); c.focus(); } });
+    app.appendChild(el('div', { class: 'login' }, [
+      el('div', { class: 'name', text: 'L’Artisane' }),
+      el('div', { text: 'Espace gérant' }),
+      m, c,
+      S.loginErr ? el('div', { class: 'err-box', text: S.loginErr }) : null,
+      b,
+      el('a', { href: 'index.html', text: 'Retour au site' })
+    ]));
+    (mail ? c : m).focus();
+  }
+  function login() {
+    var mail = document.getElementById('mail').value.trim().toLowerCase(), code = document.getElementById('code').value.trim();
+    if (!/^[^\s|@]+@[^\s|@]+\.[^\s|@]+$/.test(mail)) { S.loginErr = 'Saisissez une adresse e-mail valide.'; renderLogin(); return; }
+    try { localStorage.setItem(EMAILKEY, mail); } catch (e) {}
+    if (!/^[0-9]{4}$/.test(code)) { S.loginErr = 'Le code doit contenir 4 chiffres.'; renderLogin(); return; }
+    var sec = secretOf(mail, code);
+    rpc('verifier_acces', { p_secret: sec }).then(function (r) {
+      if (r && r.error) { S.loginErr = r.error === 'BLOQUE' ? 'Trop d’essais incorrects. Réessayez dans 5 minutes.' : 'E-mail ou code incorrect.'; renderLogin(); return; }
+      S.secret = sec; S.loginErr = '';
+      try { sessionStorage.setItem(SESSION, sec); } catch (e) {}
+      open();
+    }).catch(function () { S.loginErr = 'Connexion impossible. Vérifiez le réseau et réessayez.'; renderLogin(); });
+  }
+
+  /* ---------- éditeur ---------- */
+  function open() {
+    app.textContent = '';
+    app.appendChild(el('div', { class: 'login' }, [el('div', { text: 'Chargement…' })]));
+    fetch(SB + '/rest/v1/contenu?select=cle,valeur', { headers: HEAD })
+      .then(function (r) { if (!r.ok) throw new Error('ERREUR'); return r.json(); })
+      .then(function (rows) { S.saved = {}; rows.forEach(function (r) { S.saved[r.cle] = r.valeur; }); renderEditor(); })
+      .catch(function () {
+        app.textContent = '';
+        app.appendChild(el('div', { class: 'login' }, [el('div', { class: 'err-box', text: 'Le contenu ne se charge pas. Vérifiez le réseau puis rechargez la page.' })]));
+      });
+  }
+  function textField(k, label, rows, type) {
+    var input = rows ? el('textarea', { rows: String(rows), 'data-k': k }) : el('input', { type: type || 'text', 'data-k': k });
+    input.value = S.saved[k] || '';
+    var box = el('label', { class: 'fld' }, [document.createTextNode(label), input]);
+    input.addEventListener('input', function () { box.classList.toggle('changed', input.value !== (S.saved[k] || '')); refreshBar(); });
+    return box;
+  }
+  function photoField(slot, label) {
+    var url = S.saved['img_' + slot] || '';
+    var pv = url ? el('img', { class: 'pv', src: url, alt: '' }) : el('div', { class: 'pv', text: 'Photo d’origine' });
+    var msg = el('div', { class: 'msg' });
+    var file = el('input', { type: 'file', accept: 'image/*', 'aria-label': 'Choisir une photo' });
+    var pick = el('label', { class: 'btn btn-line pick' }, [document.createTextNode('Changer la photo'), file]);
+    var side = el('div', { class: 'side' }, [el('div', { text: label }), pick, msg]);
+    side.firstChild.style.fontWeight = '800'; side.firstChild.style.fontSize = '15px';
+    var box = el('div', { class: 'photo' }, [pv, side]);
+    file.addEventListener('change', function () {
+      var f = file.files && file.files[0]; if (!f) return;
+      msg.className = 'msg'; msg.textContent = 'Envoi de la photo…';
+      resize(f, function (data) {
+        if (!data) { msg.className = 'msg err'; msg.textContent = 'Cette image ne peut pas être lue.'; return; }
+        fetch(SB + '/functions/v1/photo', { method: 'POST', headers: HEAD, body: JSON.stringify({ secret: S.secret, slot: slot, data: data }) })
+          .then(function (r) { return r.json(); })
+          .then(function (r) {
+            if (r && (r.error === 'ACCES_INVALIDE' || r.error === 'BLOQUE')) { denied(r.error); return; }
+            if (!r || !r.ok) { msg.className = 'msg err'; msg.textContent = r && r.error === 'IMAGE_TROP_LOURDE' ? 'La photo est trop lourde.' : 'L’envoi a échoué. Réessayez.'; return; }
+            S.saved['img_' + slot] = r.url;
+            var img = el('img', { class: 'pv', src: r.url, alt: '' });
+            box.replaceChild(img, box.firstChild);
+            msg.className = 'msg ok'; msg.textContent = 'Photo en ligne sur le site.';
+          })
+          .catch(function () { msg.className = 'msg err'; msg.textContent = 'L’envoi a échoué. Vérifiez le réseau.'; });
+        file.value = '';
+      });
+    });
+    return box;
+  }
+  function resize(file, cb) {
+    var r = new FileReader();
+    r.onerror = function () { cb(null); };
+    r.onload = function () {
+      var img = new Image();
+      img.onerror = function () { cb(null); };
+      img.onload = function () {
+        var max = 1600, k = Math.min(1, max / Math.max(img.width, img.height));
+        var c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        var ctx = c.getContext('2d'); ctx.fillStyle = '#FBF3E4'; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(img, 0, 0, c.width, c.height);
+        cb(c.toDataURL('image/jpeg', 0.84));
+      };
+      img.src = r.result;
+    };
+    r.readAsDataURL(file);
+  }
+  function changes() {
+    var out = {}, n = 0;
+    document.querySelectorAll('[data-k]').forEach(function (i) {
+      var k = i.getAttribute('data-k');
+      if (i.value !== (S.saved[k] || '')) { out[k] = i.value; n++; }
+    });
+    return { items: out, n: n };
+  }
+  function refreshBar(text, cls) {
+    var b = document.getElementById('save'), st = document.getElementById('status'); if (!b) return;
+    var n = changes().n;
+    b.disabled = n === 0 || S.busy;
+    b.textContent = S.busy ? 'Enregistrement…' : n ? 'Enregistrer les modifications (' + n + ')' : 'Aucune modification';
+    if (text !== undefined) { st.textContent = text; st.className = 'msg ' + (cls || ''); }
+    else if (n) { st.textContent = ''; }
+  }
+  function save() {
+    var ch = changes(); if (!ch.n || S.busy) return;
+    S.busy = true; refreshBar('');
+    rpc('admin_enregistrer', { p_secret: S.secret, p_items: ch.items }).then(function (r) {
+      S.busy = false;
+      if (r && r.error) { denied(r.error); return; }
+      Object.keys(ch.items).forEach(function (k) { S.saved[k] = ch.items[k]; });
+      document.querySelectorAll('.fld.changed').forEach(function (f) { f.classList.remove('changed'); });
+      refreshBar('Modifications enregistrées. Elles sont visibles sur le site.', 'ok');
+    }).catch(function (e) {
+      S.busy = false;
+      refreshBar(e.message === 'TEXTE_TROP_LONG' ? 'Un texte est trop long. Raccourcissez-le.' : 'L’enregistrement a échoué. Vérifiez le réseau et réessayez.', 'err');
+    });
+  }
+  function accessCard() {
+    var mail = el('input', { type: 'email', autocomplete: 'username' }); mail.value = S.secret.split('|')[0];
+    var code = el('input', { type: 'password', inputmode: 'numeric', maxlength: '4', autocomplete: 'off' });
+    var msg = el('div', { class: 'msg' });
+    var b = el('button', { class: 'btn btn-line', text: 'Changer mes identifiants' });
+    b.style.marginTop = '14px';
+    b.addEventListener('click', function () {
+      var m = mail.value.trim().toLowerCase(), c = code.value.trim();
+      if (!/^[^\s|@]+@[^\s|@]+\.[^\s|@]+$/.test(m)) { msg.className = 'msg err'; msg.textContent = 'Saisissez une adresse e-mail valide.'; return; }
+      if (!/^[0-9]{4}$/.test(c)) { msg.className = 'msg err'; msg.textContent = 'Le code doit contenir 4 chiffres.'; return; }
+      var sec = secretOf(m, c);
+      rpc('changer_acces', { p_ancien: S.secret, p_nouveau: sec }).then(function (r) {
+        if (r && r.error) { denied(r.error); return; }
+        S.secret = sec; try { sessionStorage.setItem(SESSION, sec); localStorage.setItem(EMAILKEY, m); } catch (e) {}
+        code.value = ''; msg.className = 'msg ok'; msg.textContent = 'Identifiants modifiés. Utilisez-les à la prochaine connexion.';
+      }).catch(function () { msg.className = 'msg err'; msg.textContent = 'Le changement a échoué. Réessayez.'; });
+    });
+    return el('section', { class: 'card' }, [
+      el('h2', { text: 'Mes identifiants' }),
+      el('p', { class: 'hint', text: 'L’e-mail et le code à 4 chiffres demandés pour entrer dans cet espace.' }),
+      el('label', { class: 'fld' }, [document.createTextNode('E-mail'), mail]),
+      el('label', { class: 'fld' }, [document.createTextNode('Nouveau code à 4 chiffres'), code]),
+      b, msg
+    ]);
+  }
+  function renderEditor() {
+    app.textContent = '';
+    var out = el('button', { class: 'btn btn-ghost', text: 'Se déconnecter' });
+    out.addEventListener('click', function () { try { sessionStorage.removeItem(SESSION); } catch (e) {} S.secret = ''; S.loginErr = ''; renderLogin(); });
+    var name = el('div', { class: 'name', text: 'L’Artisane' }); name.appendChild(el('small', { text: 'Espace gérant' }));
+    app.appendChild(el('header', { class: 'top' }, [el('div', { class: 'wrap' }, [
+      name,
+      el('div', { class: 'acts' }, [el('a', { class: 'btn btn-gold', href: 'index.html', target: '_blank', rel: 'noopener', text: 'Voir le site' }), out])
+    ])]));
+    var main = el('main', {}, []), wrap = el('div', { class: 'wrap' }, []);
+    SECTIONS.forEach(function (sec) {
+      var card = el('section', { class: 'card' }, [el('h2', { text: sec.title }), el('p', { class: 'hint', text: sec.hint })]);
+      sec.fields.forEach(function (f) {
+        if (f.sub) card.appendChild(el('h3', { text: f.sub }));
+        else if (f.img) card.appendChild(photoField(f.img, f.l));
+        else if (f.pair) card.appendChild(el('div', { class: 'two' }, [textField(f.pair[0], f.l[0]), textField(f.pair[1], f.l[1])]));
+        else card.appendChild(textField(f.k, f.l, f.rows, f.type));
+      });
+      wrap.appendChild(card);
+    });
+    wrap.appendChild(accessCard());
+    main.appendChild(wrap); app.appendChild(main);
+    var saveBtn = el('button', { class: 'btn btn-dark', id: 'save', text: 'Aucune modification' });
+    saveBtn.addEventListener('click', save);
+    app.appendChild(el('div', { class: 'bar' }, [el('div', { class: 'wrap' }, [saveBtn, el('div', { class: 'msg', id: 'status', role: 'status' })])]));
+    refreshBar();
+  }
+  window.addEventListener('beforeunload', function (e) { if (S.secret && document.getElementById('save') && changes().n) { e.preventDefault(); e.returnValue = ''; } });
+
+  var saved = ''; try { saved = sessionStorage.getItem(SESSION) || ''; } catch (e) {}
+  if (!saved) { renderLogin(); return; }
+  rpc('verifier_acces', { p_secret: saved }).then(function (r) {
+    if (r && r.ok) { S.secret = saved; open(); } else { renderLogin(); }
+  }).catch(function () { S.loginErr = 'Connexion impossible. Vérifiez le réseau.'; renderLogin(); });
+})();
+</script>
+</body>
+</html>
